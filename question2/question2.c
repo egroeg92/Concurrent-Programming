@@ -89,6 +89,7 @@ int enter3(char x){
 		return -1;
 	}
 }
+// enter the dfa with character x at state state
 int enter(char x, int state){
 	switch (state){
 	case 0:
@@ -155,7 +156,7 @@ void executeThreads(int threadAmt, int state_amt,int states2[threadAmt][state_am
 			if(threadId == 0 ) {
 				states3[0] = enter(string[string_index], states3[0]);	
 			} 
-			// all other threads must loop through different start states
+			// all other threads must loop through different start states of dfa
 			else {			
 				for( state_index = 0 ; state_index < sAmt ; state_index++)
 				{
@@ -206,6 +207,7 @@ int main(int argc, char* argv[])
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
 	
+	// 10 executions
 	int i;
 	for(i = 0 ; i < 10 ; i++)
 	{ 
