@@ -1,0 +1,68 @@
+George Macrae
+Assignment 4
+Comp 409 Concurrent Programming
+
+CSP
+
+
+CALL(k) :: floor:int; floor := (k) *[ P ? push -> elev ! request(floor) ]
+
+DESTINATION(k) :: floor:int; floor := (k) *[ P ? push -> elev ! request(floor) ]
+
+
+DOOR(k) :: floor:int; floor := (k) ; isOpened : boolean ; isOpened := false ;  
+*[ 
+	not isOpened ;
+	elev ? open -> open() ; elev ! opened ; 
+	
+	[]
+	
+	isOpened ; 
+	elev ? close -> close() ; elev ! closed
+]
+
+
+
+P(k) :: inElevator :: boolean; currentFloor : int ; dest := int ; currentFloor := rand.getNextInt(3) ; inElevator := false *[ 
+
+	not inElevator ; 
+	CB(floor) ! push ; 
+
+	*[ 
+		elev ? opened(floor) ; enter() -> inElevator := true ; elev ! ready ; elev ? closed 
+	
+		[] 
+	
+		elev ? opened(not floor) ; elev ! ready ; elev ? closed 
+	]
+
+	[]
+
+	inElevator ;
+	dest := floor[rand] ; DB(dest) ! push ;
+	*[ 
+
+		elev ? opened(dest) ; exit() -> inElevator := false ; elev ! ready ; elev ? closed 
+	
+		[]
+	
+		elev ? opened(not dest) ; elev! ready ; elev ? closed 
+	]
+
+ ]
+
+
+ELEV :: [ cb(1,2,3) :: CALL || db(1,2,3) :: DESTINATION || d(1,2,3) :: DOOR || p(1...n) :: PASSENGER ];
+  requests : int[] ; currentFloor : int ; *[ 
+	
+	*[cb ? request(k) -> requests.add(k)] || *[db ? request(k) -> requests.add(k)] ||
+	*[
+		request.notEmpty() ; 
+		moveto(requests.getRand())  -> currentFloor := floor ; d(floor) ! open ; d(floor) ? opened ;  
+		[p(0) ! opened(floor)  ; p(1) ! opened(floor) ; ... ; p(n) ! opened(floor) ] ; 
+		[p(0) ? ready ; p(1) ? ready ;... ; p(n) ? ready ] ;
+		requests.remove(floor) ; 
+		[p(1) ! closed ; p(2) ! closed ; ... ; p(n) ! closed ] ; 
+		d(floor) -> close ; d(floor) ! closed
+	]
+]
